@@ -130,7 +130,8 @@ class Export_ExportersController extends Zend_Controller_Action
                         $this->flash('Export started');
                     } catch (Exception $e) {
                         $export->status = 'error';
-                        $this->flash('Export start failed', 'error');
+                        $export->save();
+                        $this->flash(sprintf('Export start failed: %s', $e->getMessage()), 'error');
                     }
 
                     $this->redirect('export');

@@ -17,6 +17,7 @@ class ExportPlugin extends Omeka_Plugin_AbstractPlugin
      */
     protected $_filters = array(
         'admin_navigation_main',
+        'export_writers',
     );
 
     /**
@@ -90,18 +91,6 @@ class ExportPlugin extends Omeka_Plugin_AbstractPlugin
         add_translation_source(dirname(__FILE__) . '/languages');
 
         Zend_Registry::set('export_writer_manager', new Export_Writer_Manager());
-
-        $events = Zend_EventManager_StaticEventManager::getInstance();
-        $events->attach(ExportPlugin::class, 'writers', array($this, 'getWriters'));
-    }
-
-    public function getWriters()
-    {
-        $writers = array(
-            'csv' => 'Export_Writer_CsvWriter',
-        );
-
-        return $writers;
     }
 
     public function hookDefineRoutes($args)
@@ -132,5 +121,12 @@ class ExportPlugin extends Omeka_Plugin_AbstractPlugin
             'uri' => url('export'),
         );
         return $nav;
+    }
+
+    public function filterExportWriters($writers)
+    {
+        $writers['csv'] = 'Export_Writer_CsvWriter';
+
+        return $writers;
     }
 }

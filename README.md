@@ -15,19 +15,13 @@ A plugin that wants to declare a new *Writer* would look like this:
 ```php
 class MyExportWriterPlugin extends Omeka_Plugin_AbstractPlugin
 {
-    protected $_hooks = array('initialize');
+    protected $_filters = array('export_writers');
 
-    public function hookInitialize()
+    public function filterExportWriters($writers)
     {
-        $events = Zend_EventManager_StaticEventManager::getInstance();
-        $events->attach(ExportPlugin::class, 'writers', array($this, 'getWriters'));
-    }
+        $writers['my'] = 'MyExportWriter_Writer';
 
-    public function getWriters()
-    {
-        return array(
-            'my' => 'MyExportWriter_Writer',
-        );
+        return $writers;
     }
 }
 ```

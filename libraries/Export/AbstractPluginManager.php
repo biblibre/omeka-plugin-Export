@@ -19,24 +19,31 @@ abstract class Export_AbstractPluginManager
     {
         if (!isset($this->plugins)) {
             $this->plugins = array();
-            $events = Zend_EventManager_StaticEventManager::getInstance();
+            $items = array();
+
             $event = $this->getEventName();
-            $listeners = $events->getListeners(ExportPlugin::class, $event);
 
-            if (false !== $listeners) {
-                $items = array();
-                foreach ($listeners->getIterator() as $listener) {
-                    $items = array_merge($items, $listener->call());
-                }
+            if (@class_exists('Zend_EventManager_StaticEventManager')) {
+                $events = Zend_EventManager_StaticEventManager::getInstance();
+                $listeners = $events->getListeners(ExportPlugin::class, $event);
 
-                $interface = $this->getInterface();
-                foreach ($items as $name => $class) {
-                    if (class_exists($class) && in_array($interface, class_implements($class))) {
-                        $this->plugins[$name] = new $class();
+                if (false !== $listeners) {
+                    $items = array();
+                    foreach ($listeners->getIterator() as $listener) {
+                        $items = array_merge($items, $listener->call());
                     }
+
                 }
             }
 
+            $items = apply_filters('export_' . $event, $items);
+
+            $interface = $this->getInterface();
+            foreach ($items as $name => $class) {
+                if (class_exists($class) && in_array($interface, class_implements($class))) {
+                    $this->plugins[$name] = new $class();
+                }
+            }
         }
 
         return $this->plugins;
